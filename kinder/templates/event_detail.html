@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background-image: url('{{ event.image.url }}');
+            background-size: cover;
+            background-position: center;
+            min-height: 100vh;
+        }
+        .content-wrapper {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 800px;
+            margin: 50px auto;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .event-detail {
+            font-size: 18px;
+            line-height: 1.6;
+            color: #34495e;
+            margin-bottom: 20px;
+        }
+        .status {
+            padding: 5px 10px;
+            border-radius: 5px;
+            display: inline-block;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        .completed { background-color: #e74c3c; color: white; }
+        .upcoming { background-color: #3498db; color: white; }
+        .event-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="content-wrapper">
+
+        <h1>{{ event.title }}</h1>
+
+        <div class="status {% if event.is_completed %}completed{% else %}upcoming{% endif %}">
+            {% if event.is_completed %}Completed{% else %}Upcoming{% endif %}
+        </div>
+
+        {% if event.image %}
+            <img src="{{ event.image.url }}" alt="{{ event.title }}" class="event-image">
+        {% endif %}
+
+        <div class="event-detail">
+            {{ event.details|linebreaks }}
+        </div>
+
+        <!-- Back to Calendar Link -->
+        <a href="{% url 'calendar' %}" style="text-decoration: none; color: #3498db; font-weight: bold;">
+            &larr; Back to Calendar
+        </a>
+    </div>
+</body>
+</html>

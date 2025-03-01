@@ -1,0 +1,308 @@
+{% load widget_tweaks %}
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <title>Student Login</title>
+    <link rel="stylesheet" href="{% static 'styles/styles.css' %}">
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-image: url('{% static "images/studentloginback.png" %}');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            animation: gradientAnimation 15s ease infinite;
+        }
+
+        h2 {
+            color: black;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .login-container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            text-align: left;
+            width: 400px;
+            margin-right: 40px;
+            transform: scale(1);
+            transition: transform 0.3s ease;
+        }
+
+        .login-container:hover {
+            transform: scale(1.05);
+        }
+
+        form label {
+            color: black;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        button {
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 30px;
+            font-size: 1rem;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.4s ease, transform 0.2s ease;
+        }
+
+        button:hover {
+            background: linear-gradient(45deg, #2575fc, #6a11cb);
+            transform: translateY(-3px);
+        }
+
+        button:active {
+            transform: translateY(2px);
+        }
+
+        .input-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .input-container i {
+            position: absolute;
+            top: 50%;
+            left: 10px;  
+            transform: translateY(-50%);
+            color: #6a11cb;
+            pointer-events: none; 
+        }
+
+        input[type="text"], input[type="password"], select, textarea {
+            width: 100%;
+            padding: 10px 40px 10px 40px; 
+            margin: 5px 0;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-size: 1rem;
+            outline: none;
+            color: black;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus, input[type="password"]:focus {
+            border-color: #6a11cb;
+        }
+        .forgot-password {
+            display: inline-block;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #007bff;
+            text-decoration: none;
+        }
+        
+        .forgot-password:hover {
+            text-decoration: underline;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        footer {
+            position: absolute;
+            bottom: 10px;
+            width: 100%;
+            text-align: center;
+            color: white;
+        }
+        .close{
+            font-size: 40px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+        }
+        .end{
+            position: relative;
+            top: -18px;
+            right: 10px;
+        }
+        .input-container i.fas.fa-eye, 
+        .input-container i.fas.fa-eye-slash {
+            position: absolute;
+            top: 50%;
+            right: 10px;  
+            transform: translateY(-50%);
+            pointer-events: all; 
+            color: #6a11cb;
+            margin-left: 300px;
+        }
+        /* Improved modal styling */
+.modal-content {
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.modal-header {
+    border-bottom: 1px solid #ddd;
+    background-color: #6a11cb;
+    color: white;
+}
+
+.modal-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.modal-body {
+    padding: 15px;
+    font-size: 1rem;
+    color: #333;
+}
+
+.alert-danger {
+    font-size: 1rem;
+    padding: 15px;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+    border-radius: 5px;
+    margin: 0;
+}
+
+.modal-footer {
+    border-top: 1px solid #ddd;
+    text-align: center;
+}
+
+.close {
+    font-size: 30px;
+    color: white;
+}
+
+.close:hover {
+    color: #f1f1f1;
+}
+
+button.btn-secondary {
+    background-color: #6a11cb;
+    color: white;
+    border-radius: 5px;
+    padding: 10px 20px;
+}
+
+button.btn-secondary:hover {
+    background-color: #2575fc;
+}
+
+
+        @keyframes gradientAnimation {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2>Student Login</h2>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="{{ form.student_id.id_for_label }}">Student ID</label>
+                <div class="input-container">
+                    <i class="fa-solid fa-user"></i>
+                    {{ form.student_id|add_class:"form-control" }}
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="{{ form.password.id_for_label }}">Password</label>
+                <div class="input-container">
+                    <i class="fa-solid fa-lock"></i>
+                    {{ form.password|add_class:"form-control"  }}
+                    <i class="fas fa-eye" id="toggle-password" onclick="togglePassword()"></i>
+                </div>
+            </div>
+            <button type="submit" class="btn">Login</button>
+        </form>
+        <a href="#" class="forgot-password">Forgot Password?</a>
+    </div>
+
+    {% if form.non_field_errors %}
+        <div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="errorModalLabel">Error</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span class="end" aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <ul>
+                            {% for error in form.non_field_errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+   
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://kit.fontawesome.com/f0f806a3ea.js" crossorigin="anonymous"></script>
+    <script>
+        function togglePassword() {
+            var passwordField = document.getElementById("password");
+            var toggleIcon = document.getElementById("toggle-password");
+            if (passwordField.type === "password") {
+                passwordField.type = "text";
+                toggleIcon.classList.remove("fa-eye");
+                toggleIcon.classList.add("fa-eye-slash"); 
+            } else {
+                passwordField.type = "password";
+                toggleIcon.classList.remove("fa-eye-slash");
+                toggleIcon.classList.add("fa-eye");
+            }
+        }
+
+        {% if form.non_field_errors %} 
+    
+        $('#errorModal').modal('show');
+    {% endif %}
+    </script>
+</body>
+</html>

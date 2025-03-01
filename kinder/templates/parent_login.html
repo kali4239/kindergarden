@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <title>Parent Login</title>
+    <link rel="stylesheet" href="{% static 'styles/styles.css' %}">
+</head>
+<style>
+    /* Reset and box-sizing for consistency */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f2f2f2; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+    background-image:linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)),url('{% static "images/parentbackground.jpeg" %}');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    backdrop-filter: blur(4px);
+}
+
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+}
+
+.login-form {
+    background-color: white;
+    padding: 40px 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 380px;
+    text-align: center;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    animation: fadeInUp 0.5s ease-in-out;
+}
+
+h1 {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 30px;
+    text-transform: uppercase;
+}
+
+.form-group {
+    margin-bottom: 25px;
+    position: relative;
+}
+
+input[type="text"], input[type="password"], button[type="submit"] {
+    width: 100%;
+    padding: 12px 15px;
+    margin: 10px 0;
+    border-radius: 6px;
+    border: 2px solid #ccc;
+    font-size: 1rem;
+}
+
+input[type="text"], input[type="password"] {
+    background-color: #f9f9f9;
+    color: black;
+    transition: border-color 0.3s ease;
+}
+
+input[type="text"]:focus, input[type="password"]:focus {
+    border-color: #3e8e41;
+    outline: none;
+}
+
+button[type="submit"] {
+    background-color: #3e8e41;
+    color: white;
+    border: none;
+    cursor: pointer;
+    padding: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 6px;
+    transition: background-color 0.3s ease;
+}
+
+button[type="submit"]:hover {
+    background-color: #2e6a33;
+}
+
+.forgot-password {
+    display: inline-block;
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: #007bff;
+    text-decoration: none;
+}
+
+.forgot-password:hover {
+    text-decoration: underline;
+}
+
+.input-icon {
+    position: relative;
+}
+
+.input-icon input {
+    padding-left: 40px; 
+}
+
+.input-icon i {
+    position: absolute;
+    top: 50%;
+    left: 10px; 
+    transform: translateY(-50%);
+    font-size: 1.2rem;
+    color: #aaa;
+}
+
+#toggle-password {
+    left: 280px;
+    cursor: pointer;
+}
+
+/* Animation for form */
+@keyframes fadeInUp {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .login-form {
+        padding: 30px;
+        max-width: 90%;
+    }
+
+    h1 {
+        font-size: 1.8rem;
+    }
+
+    input[type="text"], input[type="password"], button[type="submit"] {
+        font-size: 1rem;
+    }
+}
+@media (max-width: 450px){
+    #toggle-password {
+        left: 240px;
+        cursor: pointer;
+    }
+}
+
+</style>
+<body>
+    <div class="login-container">
+        <div class="login-form">
+            <h1>Parent Login</h1>
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <div class="input-icon">
+                        <input type="text" id="parent-id" name="parent_id" placeholder="Enter Parent ID" required>
+                        <i class="fas fa-user"></i> 
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="input-icon">
+                        <i class="fas fa-lock"></i> 
+                        <input type="password" id="password" name="password" placeholder="Enter Password" required>
+                        <i class="fas fa-eye" id="toggle-password" onclick="togglePassword()"></i>
+                    </div>
+                </div>
+                <button type="submit" class="btn">Login</button>
+            </form>
+            <a href="#" class="forgot-password">Forgot Password?</a>
+        </div>
+    </div>
+    <script src="https://kit.fontawesome.com/f0f806a3ea.js" crossorigin="anonymous"></script>
+    <script src="{% static 'js/scripts.js' %}"></script>
+    <script>
+        function togglePassword() {
+            var passwordField = document.getElementById("password");
+            var toggleIcon = document.getElementById("toggle-password");
+            if (passwordField.type === "password") {
+                passwordField.type = "text";
+                toggleIcon.classList.remove("fa-eye");
+                toggleIcon.classList.add("fa-eye-slash"); 
+            } else {
+                passwordField.type = "password";
+                toggleIcon.classList.remove("fa-eye-slash");
+                toggleIcon.classList.add("fa-eye");
+            }
+        }
+    </script>
+</body>
+</html>

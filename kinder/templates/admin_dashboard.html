@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <link rel="icon" href="{% static 'images/adminicon-removebg-preview.png' %}" size="256x256" type="image/png">
+
+    <title>Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f0f2f5;
+            min-height: 100vh;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            position: fixed;
+            height: 100%;
+            transition: all 0.3s;
+        }
+
+        .sidebar-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar-menu li {
+            margin: 10px 0;
+            padding: 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .sidebar-menu li:hover,
+        .sidebar-menu li.active {
+            background: #3498db;
+        }
+
+        .sidebar-menu a {
+            color: white;
+            text-decoration: none;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        #add-student {
+            background-image: url('{% static "images/addstudback.jpeg" %}');
+            background-size: cover;
+            background-position: center;
+        }
+
+        #add-parent {
+            background-image: url('{% static "images/addparentback.jpg" %}');
+            background-size: cover;
+            background-position: center;
+        }
+        #add-homework {
+            background-image: url('{% static "images/addhomeworkback.jpg" %}');
+            background-size: cover;
+            background-position: center;
+        }
+
+        #add-event {
+            background-image: url('{% static "images/eventback.jpeg" %}');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .section {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            display: none;
+            position: relative;
+            overflow: hidden;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        /* Home Section */
+        .home-section {
+            text-align: center;
+            padding: 100px 20px;
+            background-image: url('{% static "images/adminhome.jpg" %}');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            border-radius: 10px;
+        }
+
+        .home-section h1 {
+            font-size: 3rem;
+            font-weight: bold;
+            animation: slideIn 1s ease-out;
+            color: white;
+        }
+
+        .home-section p {
+            font-size: 1.2rem;
+            animation: fadeIn 2s ease-in-out;
+        }
+
+        /* Form Sections */
+        .form-section {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+
+        .form-section h2 {
+            margin-bottom: 20px;
+            color: #2c3e50;
+            font-weight: bold;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .form-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-container label {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .form-container input,
+        .form-container textarea,
+        .form-container select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        .form-container input:focus,
+        .form-container textarea:focus,
+        .form-container select:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+        }
+
+        .form-container button {
+            background: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .form-container textarea{
+            height: 70px;
+        }
+
+        .form-container button:hover {
+            background: #2980b9;
+        }
+
+        .input-group-text {
+            cursor: pointer;
+            background-color: #fff;
+            border-left: none;
+        }
+        .input-group-text i {
+            color: #3498db;
+        }
+        .input-group-text:hover i {
+            color: #2980b9;
+        }
+
+.badge {
+    margin-left: 8px;
+    font-size: 0.8rem;
+}
+
+.activity-card {
+    background: white;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    color: white;
+    font-size: 0.9rem;
+}
+
+.admin-comment {
+    border-left: 3px solid #3498db;
+    font-size: 0.9rem;
+}
+
+.activity-item {
+    transition: all 0.3s ease;
+}
+
+.activity-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+.attachment {
+    margin-top: 10px;
+    padding: 10px;
+    background: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+}
+
+.attachment a {
+    margin-left: 10px;
+}
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>Admin Panel</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li class="{% if active_section == 'home' %}active{% endif %}" onclick="showSection('home')">🏠 Home</li>
+                <li class="{% if active_section == 'teaching' %}active{% endif %}" onclick="showSection('teaching')">🧑🏼‍🏫 Teaching Staff</li>
+                <li class="{% if active_section == 'non-teaching' %}active{% endif %}" onclick="showSection('non-teaching')">🧑🏼 Non-Teaching Staff</li>
+                <li onclick="showSection('add-student')">👨🎓 Add Student</li>
+                <li onclick="showSection('add-parent')">👪 Add Parent</li>
+                <li onclick="showSection('add-homework')">📚 Add Homework</li>
+                <li onclick="showSection('add-event')">📅 Add Event</li>
+                <li onclick="showSection('activities')">
+                    📋 Activities 
+                    <span class="badge bg-danger">{{ pending_activities_count }}</span>
+                </li>
+                <li><a href="{% url 'logout' %}" style="color: white; text-decoration: none;">🚪 Logout</a></li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Home Section -->
+            <div id="home" class="section active home-section">
+                <h1>Welcome to Admin Dashboard</h1>
+                <p class="lead mt-3">Select an option from the sidebar to manage content</p>
+            </div>
+
+            <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="errorModalLabel">Login Error</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body text-danger">
+                            {% for message in messages %}
+                                {% if message.tags == 'error' %}
+                                    <p>{{ message }}</p>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Success Modal -->
+            <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="successModalLabel">Login Successful</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body text-success">
+                            {% for message in messages %}
+                                {% if message.tags == 'success' %}
+                                    <p>{{ message }}</p>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-success" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
+            <div id="activities" class="section">
+                <h2>Pending Activities</h2>
+                {% for activity in pending_activities %}
+                <div class="activity-card">
+                    <h4>{{ activity.title }}</h4>
+                    <p><strong>Student:</strong> {% if activity.student %} {{ activity.student.name }} {% else %} Unknown {% endif %}</p>
+                    <p>{{ activity.description }}</p>
+                    
+                    <!-- Display Attachment if Exists -->
+                    {% if activity.file %}
+                    <div class="attachment">
+                        <strong>Attachment:</strong>
+                        <a href="{{ activity.file.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                            View File
+                        </a>
+                    </div>
+                    {% endif %}
+                    
+                    <form method="post" action="{% url 'update_activity_status' activity.id %}">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label>Status:</label>
+                            <select name="status" class="form-control">
+                                <option value="pending" {% if activity.status == 'pending' %}selected{% endif %}>Pending</option>
+                                <option value="approved" {% if activity.status == 'approved' %}selected{% endif %}>Approved</option>
+                                <option value="rejected" {% if activity.status == 'rejected' %}selected{% endif %}>Rejected</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Admin Comment:</label>
+                            <textarea name="admin_comment" class="form-control" rows="3">{{ activity.admin_comment }}</textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </form>
+                </div>
+                {% empty %}
+                <p>No pending activities.</p>
+                {% endfor %}
+            </div>
+            
+            <div id="teaching" class="section {% if active_section == 'teaching' %}active{% endif %}">
+                <div class="form-section">
+                    <h2>Teaching Staff</h2>
+                    {% if not current_staff or current_staff.staff_type != 'teaching' %}
+                        <form method="post" id="teaching-login-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="form_type" value="teaching_login">
+                            <div class="form-group">
+                                <label>Staff ID</label>
+                                <input type="text" name="staff_id" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Password</label>
+                                <input type="password" name="password" class="form-control" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Teaching Staff Login</button>
+                        </form>
+                    {% else %}
+                        {% comment %} <div class="staff-dashboard">
+                            <h3>Welcome, {{ current_staff.name }}</h3>
+                            <p>Staff ID: {{ current_staff.staff_id }}</p>
+                            <p>Position: {{ current_staff.get_staff_type_display }}</p>
+                            <a href="{% url 'logout' %}" class="btn btn-danger">Logout</a>
+                        </div> {% endcomment %}
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Non-Teaching Staff Section -->
+            <div id="non-teaching" class="section {% if active_section == 'non-teaching' %}active{% endif %}">
+                <div class="form-section">
+                    <h2>Non-Teaching Staff</h2>
+                    {% if not current_staff or current_staff.staff_type != 'non-teaching' %}
+                        <form method="post" id="non-teaching-login-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="form_type" value="non_teaching_login">
+                            <div class="form-group">
+                                <label>Staff ID</label>
+                                <input type="text" name="staff_id" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Password</label>
+                                <input type="password" name="password" class="form-control" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Non-Teaching Staff Login</button>
+                        </form>
+                    {% else %}
+                        <div class="staff-dashboard">
+                            <h3>Welcome, {{ current_staff.name }}</h3>
+                            <p>Staff ID: {{ current_staff.staff_id }}</p>
+                            <p>Position: {{ current_staff.get_staff_type_display }}</p>
+                            <a href="{% url 'logout' %}" class="btn btn-danger">Logout</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+
+{% comment %} 
+            <div class="modal fade" id="loginSuccessModal" tabindex="-1" aria-labelledby="loginSuccessModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="loginSuccessModalLabel">Login Successful</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            You have successfully logged in!
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div> {% endcomment %}
+
+            <div id="add-student" class="section">
+                <div class="form-section">
+                    <h2>Add New Student</h2>
+                    <div class="form-container">
+                        <form method="post" enctype="multipart/form-data" id="student-form">
+                            {% csrf_token %}
+                            {{ student_form.as_p }}
+                            <div class="form-group">
+                                <label for="id_password">Password</label>
+                                <div class="input-group">
+                                    <input type="password" name="password" id="id_password" class="form-control" required>
+                                    <span class="input-group-text" onclick="togglePasswordVisibility('id_password')">
+                                        <i class="fas fa-eye"></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <input type="hidden" name="form_type" value="student">
+                            <button type="submit" class="btn btn-primary">Add Student</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        
+            <div id="add-parent" class="section">
+                <div class="form-section">
+                    <h2>Add New Parent</h2>
+                    <div class="form-container">
+                        <form method="post" id="parent-form">
+                            {% csrf_token %}
+                            {{ parent_form.as_p }}
+                            <div class="form-group">
+                                <label for="id_password">Password</label>
+                                <div class="input-group">
+                                    <input type="password" name="password" id="id_password" class="form-control" required>
+                                    <span class="input-group-text" onclick="togglePasswordVisibility('id_password')">
+                                        <i class="fas fa-eye"></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <input type="hidden" name="form_type" value="parent">
+                            <button type="submit" class="btn btn-primary">Add Parent</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Add Event Section -->
+            <div id="add-event" class="section">
+                <div class="form-section">
+                    <h2>Add New Event</h2>
+                    <div class="form-container">
+                        <form method="post" enctype="multipart/form-data" id="event-form">
+                            {% csrf_token %}
+                            {{ event_form.as_p }}
+                            <input type="hidden" name="form_type" value="event">
+                            <button type="submit" class="btn btn-primary">Add Event</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div id="add-homework" class="section">
+                <div class="form-section">
+                    <h2>Add New Homework</h2>
+                    <div class="form-container">
+                        <form method="post" enctype="multipart/form-data" id="event-form">
+                            {% csrf_token %}
+                            {{ event_form.as_p }}
+                            <input type="hidden" name="form_type" value="event">
+                            <button type="submit" class="btn btn-primary">Add Homework</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const activeSection = "{{ active_section }}";
+                if (activeSection) {
+                    showSection(activeSection);
+                }
+    
+                {% if messages %}
+                    {% for message in messages %}
+                        {% if message.tags == 'error' %}
+                            var errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+                            errorModal.show();
+                        {% elif message.tags == 'success' %}
+                            var successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                            successModal.show();
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            });
+            function showSection(sectionId) {
+                document.querySelectorAll('.section').forEach(section => {
+                    section.classList.remove('active');
+                });
+
+                document.getElementById(sectionId).classList.add('active');
+
+                document.querySelectorAll('.sidebar-menu li').forEach(item => {
+                    item.classList.remove('active');
+                    if (item.getAttribute('onclick') === `showSection('${sectionId}')`) {
+                        item.classList.add('active');
+                    }
+                });
+                fetch(`/update-active-section/?section=${sectionId}`, { method: 'GET' });
+            }
+
+            function togglePasswordVisibility(inputId) {
+                const passwordInput = document.getElementById(inputId);
+                const eyeIcon = passwordInput.nextElementSibling.querySelector('i');
+        
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    eyeIcon.classList.remove('fa-eye');
+                    eyeIcon.classList.add('fa-eye-slash');
+                } else {
+                    passwordInput.type = 'password';
+                    eyeIcon.classList.remove('fa-eye-slash');
+                    eyeIcon.classList.add('fa-eye');
+                }
+            }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

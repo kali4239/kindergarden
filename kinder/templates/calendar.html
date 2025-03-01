@@ -1,0 +1,728 @@
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <title>School Calendar</title>
+    <link href="{% static 'styles/styles.css' %}" rel="stylesheet" type="text/css" media="all">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
+    <style>
+
+        #topbar {
+            padding: 15px 0;
+            background: #333;
+            position: relative;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        #logo {
+            color: white;
+            font-size: 24px;
+            text-decoration: none;
+            background-color: transparent;
+        }
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            order: 2;
+        }
+
+        .nav-menu li {
+            margin-left: 30px;
+        }
+
+        .nav-menu a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            background-color: transparent;
+        }
+
+        .hamburger {
+            display: none;
+            cursor: pointer;
+            order: 3;
+        }
+
+        .hamburger i {
+            color: white;
+            font-size: 24px;
+        }
+
+        #footer {
+            background: #333;
+            color: #fff;
+            padding: 30px 0;
+            text-align: center;
+        }
+
+        #footer a {
+            color: #fff;
+            text-decoration: none;
+        }
+
+        #footer .social-icons a {
+            margin: 0 10px;
+            font-size: 20px;
+        }
+
+        .footer-text {
+            font-size: 14px;
+            margin-top: 20px;
+        }
+
+        @media screen and (max-width: 768px) {
+            .hamburger {
+                display: block;
+            }
+
+            .nav-menu {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: #333;
+                padding: 20px 0;
+                z-index: 1000;
+            }
+            .nav-menu.active {
+                display: flex;
+                flex-direction: column;
+            }
+            .nav-menu li {
+                margin: 10px 20px;
+            }
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background-image: url('{% static "images/back1.jpg" %}');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            font-family: Arial, sans-serif;
+        }
+        .calendar-container {
+            margin: 20px auto;
+            max-width: 90%;
+            padding: 20px;
+            {% comment %} background-color: rgba(255, 255, 255, 0.2); {% endcomment %}
+            border-radius: 15px;
+            {% comment %} box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); {% endcomment %}
+        }
+        .calendar-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            background-color: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        .calendar-table th, .calendar-table td {
+            width: 14.28%;
+            padding: 15px;
+            text-align: center;
+            font-size: 18px;
+            border: 1px solid rgba(164, 150, 150, 0.81);
+            {% comment %} border: 1px solid rgba(38, 36, 36, 0.07); {% endcomment %}
+            background-color: transparent;
+            vertical-align: middle;
+        }
+        .calendar-table th {
+            background-color: rgba(158, 42, 181, 0.72);
+            color: white;
+        }
+        .calendar-table td {
+            vertical-align: middle;
+            height: 150px;
+        }
+        .calendar-table td a {
+            display: block;
+            text-decoration: none;
+            font-weight: bold;
+            color: black;
+            margin-left: 35px;
+        }
+        .day {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            border-radius: 50%;
+            text-align: center;
+            color: #f2f2f2 !important;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .upcoming {
+            background-color: rgba(15, 15, 184, 0.47);
+        }
+        .completed {
+            background-color: rgba(250, 52, 52, 0.7);
+        }
+        .no-event .day {
+            background-color: transparent !important;
+            color: rgba(142, 71, 177, 0.72) !important;
+        }
+        #no-event-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            width: 300px;
+            text-align: center;
+            color: black;
+        }
+        #overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+        #no-event-modal button {
+            padding: 5px 10px;
+            background-color: #ccc;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        #no-event-modal button:hover {
+            background-color: #bbb;
+        }
+        .past-date {
+            background-color: rgba(128, 128, 128, 0.2) !important;
+            position: relative;
+        }
+        
+        .past-date::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            {% comment %} background-color: rgba(186, 155, 155, 0.45); {% endcomment %}
+        }
+        .past-date .day {
+            color: rgba(0, 0, 0, 0.4) !important;
+            pointer-events: none !important;
+        }
+        .datepicker-months td {
+            padding: 10px !important;  
+            text-align: center;
+        }
+        .datepicker-months td span {
+            display: inline-block;
+            width: 80px; 
+            height: 40px; 
+            line-height: 40px;
+            text-align: center;
+            border-radius: 5px;
+            font-size: 16px;
+            margin: 5px; 
+            cursor: pointer;
+        }
+        .datepicker-months td span:hover {
+            background-color: rgba(158, 42, 181, 0.7);
+            color: white;
+        }
+        #yearGrid button {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            background-color: rgba(158, 42, 181, 0.72);
+            color: white;
+            transition: 0.3s ease-in-out;
+        }
+        
+        #yearGrid button:hover {
+            background-color: rgba(158, 42, 181, 0.9);
+        }
+        
+        #yearGrid button.active {
+            background-color: rgba(250, 52, 52, 0.7);
+        }
+
+        .dropbtn {
+            background-color: transparent;
+            color: white;
+            padding: 16px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+        }
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0; 
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+            max-width: 200px; 
+            white-space: nowrap; 
+            overflow: hidden; 
+            text-overflow: ellipsis; 
+        }
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        @media screen and (max-width: 768px) {
+            .dropdown-content {
+                right: auto; 
+                left: 0; 
+            }
+        }
+
+        @media screen and (max-width: 768px) {
+        .calendar-table th, .calendar-table td {
+            padding: 8px;
+            font-size: 14px;
+        }
+
+        .calendar-table td {
+            height: 80px;
+        }
+
+        .day {
+            width: 25px;
+            height: 25px;
+            line-height: 25px;
+            font-size: 14px;
+        }
+
+        .calendar-container h2 {
+            font-size: 24px !important;
+        }
+
+        .calendar-container h2:nth-child(2) {
+            font-size: 18px !important;
+        }
+
+        .nav-menu {
+            display: none;
+            flex-direction: column;
+            position: absolute;
+            top: 60px;
+            left: 0;
+            right: 0;
+            background: #333;
+            padding: 10px 0;
+        }
+
+        .nav-menu.active {
+            display: flex;
+        }
+
+        .nav-menu li {
+            margin: 10px 0;
+        }
+
+        .hamburger {
+            display: block;
+        }
+
+        .modal-dialog {
+            margin: 10px;
+        }
+
+        .modal-content {
+            width: 100%;
+        }
+
+        #yearGrid button {
+            width: 50px;
+            height: 50px;
+            font-size: 16px;
+        }
+    }
+
+    @media screen and (max-width: 480px) {
+        .calendar-table th, .calendar-table td {
+            padding: 5px;
+            font-size: 12px;
+        }
+
+        .calendar-table td {
+            height: 60px;
+        }
+
+        .day {
+            width: 20px;
+            height: 20px;
+            line-height: 20px;
+            font-size: 12px;
+        }
+
+        .calendar-container h2 {
+            font-size: 20px !important;
+        }
+
+        .calendar-container h2:nth-child(2) {
+            font-size: 16px !important;
+        }
+
+        .nav-menu {
+            top: 50px;
+        }
+
+        #yearGrid button {
+            width: 40px;
+            height: 40px;
+            font-size: 14px;
+        }
+    }
+
+    @media screen and (max-width: 768px) {
+        .calendar-container {
+            overflow-x: auto;
+        }
+
+        .calendar-table {
+            min-width: 600px;
+        }
+    }
+    </style>
+        
+</head>
+<body id="top">
+<!-- Header Section -->
+<div class="row0">
+    <div id="topbar" class="clear">
+        <div class="nav-container">
+            <a href="#" id="logo">Kindergarten School</a>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="{% url 'index' %}">Home</a></li>
+                    <li><a href="#">Contact Us</a></li>
+                    <li><a href="#">Classes</a></li>
+                    <li class="dropdown">
+                        <a href="#" class="dropbtn">Login</a>
+                        <div class="dropdown-content">
+                            <a href="{% url 'student_login' %}">Student Login</a>
+                            <a href="{% url 'admin_login' %}">Admin Login</a>
+                            <a href="{% url 'parent_login' %}">Parent Login</a>
+                        </div>
+                    </li>
+                </ul>
+            </nav>
+            <div class="hamburger" onclick="toggleMenu()">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- Main Content Section -->
+    <div class="calendar-container">
+        <div class="d-flex justify-content-between align-items-center w-100 mb-2">
+            <div class="text-center w-100">
+                <h2 style="font-size:30px; color:black; font-weight: bolder; margin-top: 0;">Kindergarten School Calendar</h2>
+                <h2 style="color:black; font-size:20px; font-weight: bolder;">{{ current_month_name }} {{ current_year }}</h2>
+            </div>
+        
+            <div class="d-flex gap-1">
+                <a href="?month={{ prev_month }}&year={{ prev_year }}" class="btn btn-primary">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+        
+                <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#calendarModal">
+                    <i class="bi bi-calendar"></i>
+                </button>
+        
+                <a href="?month={{ next_month }}&year={{ next_year }}" class="btn btn-primary">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            </div>
+        </div>
+        
+        <div class="modal fade" id="calendarModal" tabindex="-1" aria-labelledby="calendarModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header bg-warning text-dark d-flex justify-content-between">
+                        <button class="btn" id="prevMonth">
+                            <i class="bi bi-chevron-left"></i>
+                        </button>
+                        <h5 id="selectedMonthYear" class="m-0">February 2025</h5>
+                        <button class="btn" id="nextMonth">
+                            <i class="bi bi-chevron-right"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="datepicker" class="text-warning"></div>
+                        <div class="text-center mt-3">
+                            <div id="yearGrid" class="d-flex flex-wrap justify-content-center gap-2"></div>
+                        </div>
+                        <div class="text-center mt-3">
+                            <button class="btn btn-outline-primary" id="todayBtn">Today</button>
+                            <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>        
+        
+        <table class="calendar-table">
+            <thead>
+                <tr>
+                    <th>Sun</th>
+                    <th>Mon</th>
+                    <th>Tue</th>
+                    <th>Wed</th>
+                    <th>Thu</th>
+                    <th>Fri</th>
+                    <th>Sat</th>
+                </tr>
+            </thead>
+            <tbody style="text-align: center;">
+                {% for week in month_calendar %}
+                <tr>
+                    {% for day in week %}
+                    <td class="{% if day != 0 %}{% if not events_by_day|get_item:day %}no-event{% endif %}{% endif %}"
+                    data-year="{{ current_year }}"
+                    data-month="{{ current_month }}"
+                    data-day="{{ day }}">
+                    {% if day != 0 %}
+                        {% with event=events_by_day|get_item:day %}
+                            {% if event %}
+                                <a href="{% url 'event_detail' event.id %}" 
+                                   class="day {% if event.status == 'upcoming' %}upcoming{% elif event.status == 'completed' %}completed{% endif %}">
+                                   {{ day }}
+                                </a>
+                            {% else %}
+                                <a href="#" 
+                                   class="day"
+                                   data-day="{{ day }}">
+                                   {{ day }}
+                                </a>
+                            {% endif %}
+                        {% endwith %}
+                    {% endif %}
+                </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div id="no-event-modal">
+        <h3>📅 No Events</h3>
+        <p id="no-event-message"></p>
+        <button onclick="closeModal()" class="modal-close">Close</button>
+    </div>
+    <div id="overlay"></div>
+
+    <div class="row4">
+        <footer id="footer" class="clear">
+            <div class="one_third first">
+                <figure class="center">
+                    <img class="btmspace-15" src="{% static 'images/worldmap.png' %}" alt="">
+                    <figcaption><a href="#">Find Us With Google Maps &raquo;</a></figcaption>
+                </figure>
+            </div>
+            <div class="one_third">
+                <address>
+                    Long Educational Facility Name<br>
+                    Address Line 2<br>
+                    Town/City<br>
+                    Postcode/Zip<br>
+                    <br>
+                    <i class="fa fa-phone pright-10"></i> xxxx xxxx xxxxxx<br>
+                    <i class="fa fa-envelope-o pright-10"></i> <a href="#">contact@domain.com</a>
+                </address>
+            </div>
+            <div class="one_third">
+                <p class="nospace btmspace-10">Stay Up to Date With What's Happening</p>
+                <ul class="faico clear">
+                    <li><a class="faicon-twitter" href="#"><i class="fa fa-twitter"></i></a></li>
+                    <li><a class="faicon-linkedin" href="#"><i class="fa fa-linkedin"></i></a></li>
+                    <li><a class="faicon-facebook" href="#"><i class="fa fa-facebook"></i></a></li>
+                    <li><a class="faicon-flickr" href="#"><i class="fa fa-flickr"></i></a></li>
+                    <li><a class="faicon-rss" href="#"><i class="fa fa-rss"></i></a></li>
+                </ul>
+                <form class="clear" method="post" action="#">
+                    <fieldset>
+                        <legend>Subscribe To Our Newsletter:</legend>
+                        <input type="text" value="" placeholder="Enter Email Here&hellip;">
+                        <button class="fa fa-sign-in" type="submit" title="Sign Up"><em>Sign Up</em></button>
+                    </fieldset>
+                </form>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Copyright Section -->
+    <div class="row5">
+        <div id="copyright" class="clear">
+            <p class="fl_left">Copyright &copy; 2025 - All Rights Reserved - <a href="#">Lorem, ipsum.</a></p>
+            <p class="fl_right">Desgin by <a target="" href="" title="">Kindergarten</a></p>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
+    <script>
+        function openModal(day) {
+            const modal = document.getElementById('no-event-modal');
+            const overlay = document.getElementById('overlay');
+            const message = document.getElementById('no-event-message');
+            
+            message.textContent = `No events found for ${day} ${'{{ current_month_name }}'}.`;
+            modal.style.display = 'block';
+            overlay.style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('no-event-modal').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+        function updatePastDates() {
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            const currentMonth = now.getMonth() + 1; 
+            const currentDay = now.getDate();
+        
+            document.querySelectorAll('td[data-year][data-month][data-day]').forEach(td => {
+                const cellYear = parseInt(td.dataset.year);
+                const cellMonth = parseInt(td.dataset.month);
+                const cellDay = parseInt(td.dataset.day);
+
+                const isPast = (
+                    cellYear < currentYear ||
+                    (cellYear === currentYear && cellMonth < currentMonth) ||
+                    (cellYear === currentYear && cellMonth === currentMonth && cellDay < currentDay)
+                );
+
+                if (isPast) {
+                    td.classList.add('past-date');
+                    const dayLink = td.querySelector('.day');
+                    if (dayLink) {
+                        dayLink.style.pointerEvents = 'none';
+                        dayLink.removeAttribute('href');
+                    }
+                } else {
+                    td.classList.remove('past-date');
+                    const dayLink = td.querySelector('.day');
+                    if (dayLink && dayLink.getAttribute('href') === '#') {
+                        dayLink.style.pointerEvents = 'auto';
+                        dayLink.setAttribute('href', '#');
+                    }
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.day[href="#"]').forEach(link => {
+                const day = parseInt(link.dataset.day, 10);
+                const currentDay = parseInt('{{ current_day }}', 10);
+
+                if (day < currentDay) {
+                    link.classList.add('past-date');
+                    link.removeAttribute('href');
+                } else {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        openModal(day);
+                    });
+                }
+            });
+
+            updatePastDates();
+
+            setInterval(updatePastDates, 60000);
+
+            document.getElementById('overlay').addEventListener('click', closeModal);
+        });
+
+        $(document).ready(function() {
+            $('#datepicker').datepicker({
+                format: "MM yyyy",
+                startView: "months",  
+                minViewMode: "months", 
+                autoclose: true
+            }).on('changeDate', function(e) {
+                let selectedMonth = e.date.getMonth() + 1;
+                let selectedYear = $('#yearGrid button.active').text() || e.date.getFullYear();
+        
+                $('#selectedMonthYear').text(`${e.format('MM')} ${selectedYear}`);
+        
+                window.location.href = `?month=${selectedMonth}&year=${selectedYear}`;
+            });
+
+            let yearGrid = $('#yearGrid');
+            let currentYear = new Date().getFullYear();
+            
+            for (let i = currentYear - 10; i <= currentYear + 10; i++) {
+                let yearBtn = $(`<button class="btn year-btn">${i}</button>`);
+                
+                if (i === currentYear) {
+                    yearBtn.addClass('active');
+                }
+        
+                yearBtn.click(function() {
+                    $('#yearGrid button').removeClass('active'); 
+                    $(this).addClass('active');
+                });
+        
+                yearGrid.append(yearBtn);
+            }
+            $('#todayBtn').click(function() {
+                let today = new Date();
+                let month = today.getMonth() + 1;
+                let year = today.getFullYear();
+                window.location.href = `?month=${month}&year=${year}`;
+            });
+        });
+
+        function toggleMenu() {
+            const navMenu = document.querySelector('.nav-menu');
+            navMenu.classList.toggle('active');
+        }
+    </script>
+</body>
+</html>

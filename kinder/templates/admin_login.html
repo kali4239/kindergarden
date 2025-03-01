@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login</title>
+  {% load static %}
+  <link href="{% static 'styles/styles.css' %}" rel="stylesheet" type="text/css" media="all">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.css" rel="stylesheet">
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+        background-image: url("{% static 'images/eventback.jpeg' %}");
+        backdrop-filter: blur(5px);
+    }
+
+    #topbar {
+      padding: 15px 0;
+      background: #333;
+      position: relative;
+    }
+
+    .nav-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    #logo {
+      color: white;
+      font-size: 24px;
+      text-decoration: none;
+      background-color: transparent;
+    }
+
+    .nav-menu {
+      display: flex;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      order: 2; 
+    }
+
+    .nav-menu li {
+      margin-left: 30px;
+    }
+
+    .nav-menu a {
+      color: white;
+      text-decoration: none;
+      font-size: 16px;
+      background-color: transparent;
+    }
+
+    .hamburger {
+      display: none;
+      cursor: pointer;
+      order: 3; 
+    }
+
+    .hamburger i {
+      color: white;
+      font-size: 24px;
+    }
+
+    /* Login Form Styles */
+    .login-form {
+      max-width: 400px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.7); /* Semi-transparent background */
+      backdrop-filter: blur(10px); /* Blur effect */
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2);
+      margin: 50px auto;
+      position: relative;
+      z-index: 2;
+    }
+
+    .login-form h2 {
+      text-align: center;
+      font-weight: bold;
+      margin-bottom: 25px;
+      color: #333;
+      font-size: 28px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      color: #555;
+      margin-bottom: 8px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 10px 35px 10px 35px; 
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      color: black;
+      transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    }
+
+    .form-group input:focus {
+      border-color: #6a11cb;
+      box-shadow: 0 0 8px rgba(106, 17, 203, 0.3);
+    }
+
+    .input-icon {
+      position: absolute;
+      top: 55px;
+      transform: translateY(-50%);
+      font-size: 18px;
+      color: #888;
+    }
+
+    .input-icon.left {
+      left: 10px;
+    }
+
+    .input-icon.right {
+      right: 10px;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 8px;
+      background: #6a11cb;
+      border: none;
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s ease-in-out;
+    }
+
+    .btn-primary:hover {
+      background: #2575fc;
+    }
+
+    #footer {
+      background: #333;
+      color: #fff;
+      padding: 30px 0;
+      text-align: center;
+    }
+
+    #footer a {
+      color: #fff;
+      text-decoration: none;
+    }
+
+    #footer .social-icons a {
+      margin: 0 10px;
+      font-size: 20px;
+    }
+
+    .footer-text {
+      font-size: 14px;
+      margin-top: 20px;
+    }
+
+    @media screen and (max-width: 768px) {
+      .hamburger {
+        display: block;
+      }
+
+      .nav-menu {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: #333;
+        padding: 20px 0;
+        z-index: 1000;
+      }
+
+      .nav-menu.active {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .nav-menu li {
+        margin: 10px 20px;
+      }
+    }
+  </style>
+</head>
+<body id="top">
+  <div class="row0">
+    <div id="topbar" class="clear">
+      <div class="nav-container">
+        <a href="#" id="logo">Kindergarten School</a>
+        <nav>
+          <ul class="nav-menu">
+            <li><a href="{% url 'index' %}">Home</a></li>
+            <li><a href="#">Contact Us</a></li>
+            <li><a href="#">Classes</a></li>
+            <li><a href="#">Student Login</a></li>
+            <li><a href="#">Staff Login</a></li>
+          </ul>
+        </nav>
+        <div class="hamburger" onclick="toggleMenu()">
+          <i class="fas fa-bars"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Section -->
+  <main class="container clear">
+    <!-- Login Form -->
+    <div class="login-form">
+      <h2>Admin Login</h2>
+
+      {% if error %}
+      <div class="alert alert-danger" role="alert">
+        {{ error }}
+      </div>
+    {% endif %}
+
+      <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="username">Username</label>
+          <div class="input-container">
+            <i class="fas fa-user input-icon left"></i>
+            <input type="text" name="username" id="username" placeholder="Enter username" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="input-container">
+            <i class="fas fa-lock input-icon left"></i>
+            <input type="password" name="password" id="password" placeholder="Enter password" required>
+            <i class="fas fa-eye input-icon right" id="togglePassword" onclick="togglePasswordVisibility()"></i>
+          </div>
+        </div>
+        <button type="submit" class="btn-primary">Login</button>
+      </form>
+    </div>
+  </main>
+
+  <!-- Footer Section -->
+  <div class="row4">
+    <footer id="footer" class="clear">
+      <div class="one_third first">
+        <figure class="center">
+          <img class="btmspace-15" src="{% static 'images/worldmap.png' %}" alt="">
+          <figcaption><a href="#">Find Us With Google Maps &raquo;</a></figcaption>
+        </figure>
+      </div>
+      <div class="one_third">
+        <address>
+          Long Educational Facility Name<br>
+          Address Line 2<br>
+          Town/City<br>
+          Postcode/Zip<br>
+          <br>
+          <i class="fa fa-phone pright-10"></i> xxxx xxxx xxxxxx<br>
+          <i class="fa fa-envelope-o pright-10"></i> <a href="#">contact@domain.com</a>
+        </address>
+      </div>
+      <div class="one_third">
+        <p class="nospace btmspace-10">Stay Up to Date With What's Happening</p>
+        <ul class="faico clear">
+          <li><a class="faicon-twitter" href="#"><i class="fa fa-twitter"></i></a></li>
+          <li><a class="faicon-linkedin" href="#"><i class="fa fa-linkedin"></i></a></li>
+          <li><a class="faicon-facebook" href="#"><i class="fa fa-facebook"></i></a></li>
+          <li><a class="faicon-flickr" href="#"><i class="fa fa-flickr"></i></a></li>
+          <li><a class="faicon-rss" href="#"><i class="fa fa-rss"></i></a></li>
+        </ul>
+        <form class="clear" method="post" action="#">
+          <fieldset>
+            <legend>Subscribe To Our Newsletter:</legend>
+            <input type="text" value="" placeholder="Enter Email Here&hellip;">
+            <button class="fa fa-sign-in" type="submit" title="Sign Up"><em>Sign Up</em></button>
+          </fieldset>
+        </form>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Copyright Section -->
+  <div class="row5">
+    <div id="copyright" class="clear">
+      <p class="fl_left">Copyright &copy; 2025 - All Rights Reserved - <a href="#">Lorem, ipsum.</a></p>
+      <p class="fl_right">Design by <a target="" href="" title="">Kindergarten</a></p>
+    </div>
+  </div>
+
+  <script>
+    function toggleMenu() {
+      const navMenu = document.querySelector('.nav-menu');
+      navMenu.classList.toggle('active');
+    }
+
+    function togglePasswordVisibility() {
+      const passwordField = document.getElementById('password');
+      const toggleIcon = document.getElementById('togglePassword');
+      const type = passwordField.type === 'password' ? 'text' : 'password';
+      passwordField.type = type;
+      toggleIcon.classList.toggle('fa-eye-slash');
+    }
+
+    document.addEventListener('click', function(event) {
+      const navMenu = document.querySelector('.nav-menu');
+      const hamburger = document.querySelector('.hamburger');
+      
+      if (!navMenu.contains(event.target) && !hamburger.contains(event.target)) {
+        navMenu.classList.remove('active');
+      }
+    });
+
+    window.addEventListener('resize', function() {
+      if (window.innerWidth > 768) {
+        document.querySelector('.nav-menu').classList.remove('active');
+      }
+    });
+  </script>
+</body>
+</html>
