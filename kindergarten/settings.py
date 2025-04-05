@@ -12,10 +12,6 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import os
-import django_heroku
-import dj_database_url
-from whitenoise import WhiteNoise
-
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -28,9 +24,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-((-@%f7#6^d#l9hvai@mofdnc7_%!x4u=**%i5!ntik#v!q)!_'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -42,9 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'corsheaders',
     'widget_tweaks',
     'kinder',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -55,12 +51,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
-]
-
-CORS_ALLOWED_ORIGINS = [
-    'https://your-frontend-site.netlify.app',  
+    
 ]
 
 ROOT_URLCONF = 'kindergarten.urls'
@@ -137,23 +128,15 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
-
-DATABASES = {
-    'default': dj_database_url.config(default='postgres://user:password@localhost/dbname')
-}
-
-
-
-
-
-
-
-django_heroku.settings(locals())
+SESSION_ENGINE = "django.contrib.sessions.backends.db"  
+SESSION_COOKIE_NAME = "sessionid"
+SESSION_COOKIE_AGE = 1209600  
+SESSION_COOKIE_SECURE = False  
+SESSION_COOKIE_HTTPONLY = True
+SESSION_SAVE_EVERY_REQUEST = True 

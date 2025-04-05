@@ -2,6 +2,9 @@ from django.db import models
 from django.core.validators import FileExtensionValidator
 from django.contrib.auth.models import User
 # from .models import Staff
+import json
+from django.utils import timezone
+from django.utils.timezone import localtime
 
 class Event(models.Model):
     title = models.CharField(max_length=200)
@@ -123,3 +126,81 @@ class Attendance(models.Model):
     def __str__(self):
         return f"{self.student.name} - {self.date} - {self.status}"
     
+# games
+
+class GameProgressGroup(models.Model):
+    student_name = models.CharField(max_length=255, unique=True)
+    game_attempts = models.JSONField(default=list)  
+    best_rank = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.student_name} - Rank {self.best_rank}"
+    
+
+class PuzzleImage(models.Model):
+    topic = models.CharField(max_length=50)  
+    image = models.ImageField(upload_to='puzzle_images/') 
+
+    def __str__(self):
+        return f"{self.topic} - {self.image.name}"
+
+
+class PuzzleGameRecord(models.Model):
+    # username = models.CharField(max_length=255)
+    student_name = models.CharField(max_length=255, unique=True)  
+    topic = models.CharField(max_length=50)  
+    level = models.IntegerField()  
+    time_taken = models.FloatField()  
+    completed_at = models.DateTimeField(auto_now_add=True)  
+
+    def __str__(self):
+        return f"{self.student_name} - {self.topic} - Level {self.level} - `{self.time_taken}s`"
+
+
+class ChimpGameRecord(models.Model):
+    # username = models.CharField(max_length=255)
+    student_name = models.CharField(max_length=255, unique=True)  
+    completed_at = models.DateTimeField(auto_now_add=True)
+    
+
+    def __str__(self):
+        local_time = localtime(self.completed_at)
+        return f"{self.student_name} -  {local_time.strftime('%Y-%m-%d %I:%M:%S %p')}"
+
+
+
+class XOGameRequest(models.Model):
+    sender = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='sent_requests')  
+    receiver = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='received_requests')  
+    status = models.CharField(max_length=20, default="pending") 
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.sender.name} -> {self.receiver.name} ({self.status})"
+
+class XOGame(models.Model):
+    player_x = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='games_as_x')  
+    player_o = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='games_as_o')  
+    current_turn = models.CharField(max_length=1, default="X")  
+    board_state = models.JSONField(default=list)  
+    winner = models.CharField(max_length=1, null=True, blank=True) 
+    toss_result = models.JSONField(default=dict) 
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.player_x.name} vs {self.player_o.name} ({self.current_turn}'s turn)"
+
+class PredictionGameRecord(models.Model):
+    student_name = models.CharField(max_length=255)
+    user_input = models.CharField(max_length=5) 
+    prediction = models.CharField(max_length=6)  
+    second_input = models.CharField(max_length=5) 
+    third_input = models.CharField(max_length=5)  
+    fourth_input = models.CharField(max_length=5) 
+    fifth_input = models.CharField(max_length=5)  
+    result = models.CharField(max_length=6)  
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.student_name} - {self.prediction} - {self.result}"

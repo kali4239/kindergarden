@@ -1,0 +1,374 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Puzzle Game</title>
+  {% load static %}
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Lobster+Two:wght@700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Lobster Two', cursive;
+      background: url("https://t4.ftcdn.net/jpg/06/46/78/41/360_F_646784196_u1F6LtwEULzPKO7rXY1nUUS1RZqu5oLG.jpg");
+      background-position: center;
+      background-size: cover;
+    }
+    .puzzle-area {
+      width: 300px;
+      height: 300px;
+      border: 2px solid #ccc;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 0;
+    }
+    .puzzle-piece {
+      width: 100px;
+      height: 100px;
+      border: 1px solid #000;
+      background-size: 300px 300px;
+      cursor: grab;
+    }
+    #timer, #level {
+      font-size: 2em;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    #level { color: yellow; }
+    #timer { color: white; }
+    .party-popper {
+      display: inline-block;
+      animation: partyPopper 1s infinite;
+      font-size: 1.5em;
+      margin-left: 10px;
+    }
+    @keyframes partyPopper {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.5); opacity: 0.7; }
+    }
+    .demo-image-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    #imageGallery img {
+      width: 100px;
+      height: 100px;
+      margin: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="text-center text-white">Puzzle Game</h1>
+    <div id="level">Level 1</div>
+    <div id="timer">Time: 120s</div>
+    <div class="text-center mb-4">
+      {% for topic in topics %}
+      <button class="btn btn-primary topic-btn" data-topic="{{ topic }}">{{ topic }}</button>
+      {% endfor %}
+    </div>
+    <div class="text-center">
+      <button id="showScoresBtn" class="btn btn-info">Scores</button>
+      <button id="startGameBtn" class="btn btn-success">Start</button>
+      <button id="pauseGameBtn" class="btn btn-warning" style="display: none;">Pause</button>
+      <button id="stopGameBtn" class="btn btn-danger">Stop</button>
+    </div>
+    <div class="modal fade" id="scoresModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Puzzle Game Records</h5>
+            <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+          </div>
+          <div class="modal-body">
+            <table class="table table-striped">
+              <thead>
+                <tr><th>Username</th><th>Topic</th><th>Level</th><th>Time Taken</th><th>Date & Time</th></tr>
+              </thead>
+              <tbody id="scoresTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="imageGallery" class="row mb-4"></div>
+    <div class="row">
+      <div class="col-md-8">
+        <div id="puzzleArea" class="puzzle-area"></div>
+      </div>
+      <div class="col-md-4">
+        <div id="demoImageContainer" class="demo-image-container">
+          <img id="demoImage" src="" alt="Demo Image" class="img-fluid">
+        </div>
+      </div>
+    </div>
+    <div id="successMessage" class="alert alert-success mt-4" style="display: none;">You won!</div>
+    <div class="modal" id="congratsModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Congratulations!</h5>
+            <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+          </div>
+          <div class="modal-body">
+            <p>You completed the puzzle successfully!</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" id="nextLevelBtn">Next Level</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    let selectedImage = "", selectedTopic = "";
+    let level = 1, timeLeft = 120, timerInterval, isGamePaused = false, pausedTime = 0;
+    const puzzleArea = document.getElementById('puzzleArea');
+    const gallery = document.getElementById('imageGallery');
+    const levelDisplay = document.getElementById('level');
+    const timerDisplay = document.getElementById('timer');
+    const successMessage = document.getElementById('successMessage');
+    const levelDurations = { 1: 120, 2: 90, 3: 60 };
+    let images = [];
+
+    function startTimer() {
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        if (!isGamePaused && timeLeft > 0) {
+          timeLeft--;
+          timerDisplay.textContent = `Time: ${timeLeft}s`;
+        } else if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          alert('Time is up!');
+        }
+      }, 1000);
+    }
+
+    document.querySelectorAll('.topic-btn').forEach(button => {
+      button.addEventListener('click', function () {
+        selectedTopic = this.getAttribute('data-topic');
+        fetch(`/get_images_for_topic/?topic=${selectedTopic}`)
+          .then(response => response.json())
+          .then(data => {
+            images = data;
+            showImagesForLevel();
+          });
+      });
+    });
+
+    function showImagesForLevel() {
+      const start = (level - 1) * 3;
+      const end = start + 3;
+      const currentImages = images.slice(start, end);
+      gallery.innerHTML = "";
+      currentImages.forEach(image => {
+        const imgElement = document.createElement('img');
+        imgElement.src = `/media/${image.image}`;
+        imgElement.alt = image.id;
+        imgElement.classList.add('img-thumbnail');
+        imgElement.addEventListener('click', () => {
+          selectedImage = imgElement.src;
+          document.getElementById('demoImage').src = selectedImage;
+          puzzleArea.innerHTML = "";
+          document.getElementById('startGameBtn').style.display = 'inline-block';
+          document.getElementById('pauseGameBtn').style.display = 'none';
+        });
+        gallery.appendChild(imgElement);
+      });
+    }
+
+    document.getElementById('startGameBtn').addEventListener('click', function () {
+      createPuzzle(selectedImage);
+      timeLeft = pausedTime > 0 ? pausedTime : levelDurations[level];
+      startTimer();
+      document.getElementById('startGameBtn').style.display = 'none';
+      document.getElementById('pauseGameBtn').style.display = 'inline-block';
+    });
+
+    document.getElementById('pauseGameBtn').addEventListener('click', function () {
+      if (!isGamePaused) {
+        clearInterval(timerInterval);
+        isGamePaused = true;
+        pausedTime = timeLeft;
+        this.textContent = 'Resume';
+      } else {
+        isGamePaused = false;
+        timeLeft = pausedTime;
+        startTimer();
+        this.textContent = 'Pause';
+      }
+    });
+
+    function createPuzzle(imageSrc) {
+      puzzleArea.innerHTML = "";
+      const pieceSize = 100;
+      const rows = 3, cols = 3;
+      let pieces = [];
+      for (let i = 0; i < rows * cols; i++) {
+        const correctRow = Math.floor(i / cols);
+        const correctCol = i % cols;
+        const piece = document.createElement('div');
+        piece.className = 'puzzle-piece';
+        piece.draggable = true;
+        piece.dataset.correctRow = correctRow;
+        piece.dataset.correctCol = correctCol;
+        piece.style.backgroundImage = `url(${imageSrc})`;
+        piece.style.backgroundPosition = `-${correctCol * pieceSize}px -${correctRow * pieceSize}px`;
+        pieces.push(piece);
+      }
+      shuffleArray(pieces);
+      pieces.forEach(piece => {
+        piece.addEventListener('dragstart', handleDragStart);
+        piece.addEventListener('dragover', handleDragOver);
+        piece.addEventListener('drop', handleDrop);
+        piece.addEventListener('dragend', handleDragEnd);
+        puzzleArea.appendChild(piece);
+      });
+    }
+
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+
+    let draggedPiece = null;
+    function handleDragStart(event) {
+      draggedPiece = event.target;
+      event.dataTransfer.setData('text/plain', '');
+      draggedPiece.classList.add('dragging');
+    }
+    function handleDragOver(event) {
+      event.preventDefault();
+    }
+    function handleDrop(event) {
+      event.preventDefault();
+      const target = event.target;
+      if (target.classList.contains('puzzle-piece') && target !== draggedPiece) {
+        const parent = puzzleArea;
+        const draggedIndex = Array.from(parent.children).indexOf(draggedPiece);
+        const targetIndex = Array.from(parent.children).indexOf(target);
+        if (draggedIndex < targetIndex) {
+          parent.insertBefore(draggedPiece, target.nextSibling);
+        } else {
+          parent.insertBefore(draggedPiece, target);
+        }
+        checkPuzzleCompletion();
+      }
+    }
+    function handleDragEnd() {
+      draggedPiece.classList.remove('dragging');
+    }
+    function checkPuzzleCompletion() {
+      const pieces = Array.from(puzzleArea.children);
+      const isSolved = pieces.every((piece, index) => {
+        const currentRow = Math.floor(index / 3);
+        const currentCol = index % 3;
+        return parseInt(piece.dataset.correctRow) === currentRow && parseInt(piece.dataset.correctCol) === currentCol;
+      });
+      if (isSolved) {
+        clearInterval(timerInterval);
+        successMessage.style.display = 'block';
+        setTimeout(() => {
+          successMessage.style.display = 'none';
+          document.getElementById('congratsModal').style.display = 'block';
+          document.getElementById('congratsModal').classList.add('show');
+        }, 2000);
+      }
+    }
+
+    document.getElementById('nextLevelBtn').addEventListener('click', () => {
+      document.getElementById('congratsModal').style.display = 'none';
+      level++;
+      if (level === 2) timeLeft = 90;
+      if (level === 3) timeLeft = 60;
+      puzzleArea.innerHTML = "";
+      levelDisplay.textContent = `Level ${level}`;
+      showImagesForLevel();
+      startTimer();
+    });
+
+ 
+
+
+document.getElementById('stopGameBtn').addEventListener('click', async function () {
+    clearInterval(timerInterval);
+    if (!selectedTopic) {
+        alert("Please select a topic before stopping the game.");
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/get-current-student/'); 
+        const studentData = await response.json();
+
+        if (!response.ok) {
+            throw new Error(studentData.error || 'Failed to fetch student data');
+        }
+
+        const gameData = {
+            student_name: studentData.name, 
+            topic: selectedTopic,
+            level: level,
+            time_taken: levelDurations[level] - timeLeft
+        };
+
+        const saveResponse = await fetch('/api/game-progress/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': "{{ csrf_token }}"
+            },
+            body: JSON.stringify(gameData),
+        });
+
+        const saveData = await saveResponse.json();
+
+        if (saveResponse.ok) {
+            alert("Game stopped! Your progress has been saved via API.");
+        } else {
+            alert("Error: " + saveData.error);
+        }
+    } catch (error) {
+        console.error('Error saving puzzle game:', error);
+        alert("Error saving game progress. Please try again.");
+    }
+});
+
+
+    document.getElementById('showScoresBtn').addEventListener('click', function () {
+      fetch('/get_puzzle_scores/')
+        .then(response => response.json())
+        .then(data => {
+          const tbody = document.getElementById('scoresTableBody');
+          tbody.innerHTML = '';
+          data.records.forEach((record, index) => {
+            const row = document.createElement('tr');
+            const usernameCell = document.createElement('td');
+            usernameCell.textContent = record.username ;
+            if (index === 0) {
+              const popper = document.createElement('span');
+              popper.className = 'party-popper';
+              popper.textContent = '🎉';
+              usernameCell.appendChild(popper);
+            }
+            row.appendChild(usernameCell);
+            row.innerHTML += `<td>${record.topic}</td><td>${record.level}</td><td>${record.time_taken}s</td><td>${record.date}</td>`;
+            tbody.appendChild(row);
+          });
+          $('#scoresModal').modal('show');
+        })
+        .catch(error => console.error('Error fetching scores:', error));
+    });
+    
+  </script>
+</body>
+</html>

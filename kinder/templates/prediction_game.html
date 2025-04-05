@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Fugaz+One&display=swap" rel="stylesheet">
+    <style>
+        .heading{
+            font-family: "DM Serif Display", serif;
+            font-weight: 400;
+            font-style: italic;
+        }
+        form{
+            font-family: "DM Serif Display", serif;
+            font-weight: 400;
+            font-style: italic;
+        }
+        body{
+            background: url("https://thumbs.dreamstime.com/b/%D1%81olorful-math-fractions-violet-background-interesting-kids-education-back-to-school-concept-geometry-mathematics-152436397.jpg");
+            background-position: center;
+            background-size: cover;
+        }
+        .ctn img{
+            height: 210px;
+            width: 210px;
+            margin-left: 280px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4 heading">Prediction Game</h1>
+       
+        <form id="predictionGameForm">
+            {% csrf_token %}
+            <div class="row" style="box-shadow: 10px 10px 10px 10px rgba(0,0,0,0.2); border-radius: 30px;">
+                <div class="col-lg-6 mt-4">
+            <!-- Step 1: User Input -->
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control border-2" id="userInput" name="userInput" maxlength="5" required placeholder="Enter a 5-digit number (0-9)">
+                <label for="userInput">Enter a 5-digit number </label>
+            </div>
+            <button type="button" class="btn btn-primary mb-3" id="generatePredictionButton">Generate Prediction</button>
+            
+          
+            <!-- Step 2: Second Input -->
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control border-2" id="secondInput" name="secondInput" maxlength="5" required placeholder="Enter another 5-digit number (0-9)">
+                <label for="secondInput">Enter another 5-digit number</label>
+            </div>
+            <button type="button" class="btn btn-primary mb-3" id="generateThirdInputButton">Generate Third Input</button>
+            
+            
+
+            <!-- Step 3: Fourth Input -->
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control border-2" id="fourthInput" name="fourthInput" maxlength="5" required placeholder="Enter another 5-digit number (0-9)">
+                <label for="fourthInput">Enter another 5-digit number</label>
+            </div>
+            <button type="button" class="btn btn-primary mb-3" id="generateFifthInputButton">Generate Fifth Input</button>
+            
+            
+
+            <!-- Step 4: Check Result -->
+            <button type="button" class="btn btn-success mb-3" id="checkResultButton">Check Result</button>
+        </div>
+
+        <div class="col-lg-6 mt-4">
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control border-2" id="prediction" name="prediction" readonly placeholder="Prediction">
+                <label for="prediction">Prediction</label>
+            </div>
+    
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control border-2" id="thirdInput" name="thirdInput" readonly placeholder="Third Input">
+                <label for="thirdInput">Third Input</label>
+            </div>
+    
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control border-2" id="fifthInput" name="fifthInput" readonly placeholder="Fifth Input">
+                <label for="fifthInput">Fifth Input</label>
+            </div>
+
+            <div class="ctn">
+                <img src="https://static.vecteezy.com/system/resources/previews/020/946/673/original/3d-illustration-learn-math-at-home-free-png.png" alt="">
+            </div>
+    
+    
+        </div>
+            </div>
+
+        </form>
+  
+    
+        <div id="result" class="mt-4"></div>
+    </div>
+
+   
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+
+    <script>
+
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    
+    // Step 1: Generate Prediction
+    document.getElementById('generatePredictionButton').addEventListener('click', function() {
+        const userInput = document.getElementById('userInput').value;
+
+        if (!userInput || userInput.length !== 5 || !/^\d+$/.test(userInput)) {
+        alert('Please enter exactly 5 digits (0-9).');
+        return;
+        }
+        console.log("User Input:", userInput);
+
+        fetch('/generate_prediction/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken  
+            },
+            body: JSON.stringify({ userInput: userInput })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert(data.error);
+            } else {
+                document.getElementById('prediction').value = data.prediction;
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+    
+    // Step 2: Generate Third Input
+    document.getElementById('generateThirdInputButton').addEventListener('click', function() {
+        const secondInput = document.getElementById('secondInput').value;
+    
+        fetch('/generate_third_input/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({ secondInput: secondInput })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert(data.error);
+            } else {
+                document.getElementById('thirdInput').value = data.third_input;
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+    
+    // Step 3: Generate Fifth Input
+    document.getElementById('generateFifthInputButton').addEventListener('click', function() {
+        const fourthInput = document.getElementById('fourthInput').value;
+    
+        fetch('/generate_fifth_input/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({ fourthInput: fourthInput })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert(data.error);
+            } else {
+                document.getElementById('fifthInput').value = data.fifth_input;
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+    
+    // Step 4: Check Result
+    document.getElementById('checkResultButton').addEventListener('click', function() {
+        const userInput = document.getElementById('userInput').value;
+        const secondInput = document.getElementById('secondInput').value;
+        const thirdInput = document.getElementById('thirdInput').value;
+        const fourthInput = document.getElementById('fourthInput').value;
+        const fifthInput = document.getElementById('fifthInput').value;
+        const prediction = document.getElementById('prediction').value;
+
+        console.log("User Input:", userInput);
+        console.log("Second Input:", secondInput);
+        console.log("Third Input:", thirdInput);
+        console.log("Fourth Input:", fourthInput);
+        console.log("Fifth Input:", fifthInput);
+        console.log("Prediction:", prediction);
+    
+        fetch('/check_result/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({
+                userInput: userInput,
+                secondInput: secondInput,
+                thirdInput: thirdInput,
+                fourthInput: fourthInput,
+                fifthInput: fifthInput,
+                prediction: prediction
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert(data.error);
+            } else {
+                document.getElementById('result').innerHTML = `
+                    Total: ${data.total}<br>
+                    Prediction: ${data.prediction}<br>
+                    Result: <strong>${data.result}</strong>
+                `;
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+    </script>
+</body>
+</html>

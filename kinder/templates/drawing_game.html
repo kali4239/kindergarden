@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drawing Game</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            margin: 0;
+            padding: 0;
+            background-image: url("https://media.istockphoto.com/id/696318568/photo/child-drawing-happy-family.jpg?s=612x612&w=0&k=20&c=4OK0A7TnV2yRSWJkFBLuAOadLpoOPPqG7OoC7SssQRM=");
+            background-position: center;
+            background-size: cover;
+        }
+        canvas {
+            border: 1px solid #000;
+            background-color: #faf3f3;
+            margin-top: 20px;
+        }
+        .controls {
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Drawing Game</h1>
+    <div class="controls">
+        <button onclick="changeColor('black')" style="background-color: black;color: white; ">Black</button>
+        <button onclick="changeColor('red')" style="background-color: red; color: white;">Red</button>
+        <button onclick="changeColor('green')" style="background-color: green; color: white;">Green</button>
+        <button onclick="changeColor('blue')" style="background-color: blue; color: white;">Blue</button>
+        <button onclick="clearCanvas() " style="background-color: gray; color: black;">Clear</button>
+        <button onclick="changeBrushSize(5)" style="background-color: gray; color: black;">Small Brush</button>
+        <button onclick="changeBrushSize(10)" style="background-color: gray; color: black;">Medium Brush</button>
+        <button onclick="changeBrushSize(20) " style="background-color: gray; color: black;">Large Brush</button>
+    </div>
+
+    <canvas id="drawingCanvas" width="800" height="600"></canvas>
+
+    <script>
+        const canvas = document.getElementById('drawingCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let drawing = false;
+        let currentColor = 'black';
+        let brushSize = 5;
+
+        canvas.addEventListener('mousedown', () => {
+            drawing = true;
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            drawing = false;
+            ctx.beginPath(); // Start a new path after releasing the mouse
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (!drawing) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            ctx.lineWidth = brushSize;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = currentColor;
+
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+        });
+
+        function changeColor(color) {
+            currentColor = color;
+        }
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function changeBrushSize(size) {
+            brushSize = size;
+        }
+
+    </script>
+</body>
+</html>
